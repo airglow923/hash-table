@@ -1,6 +1,6 @@
 // A comparison with a vanilla Javascript object (and Set):
 
-var HashTable = require('./index.js');
+var HashTable = require('../index.js');
 var Node = { crypto: require('crypto') };
 
 var keySize = 16;

@@ -52,7 +52,7 @@
   },
   "homepage": "https://github.com/ronomon/hash-table#readme",
   "scripts": {
-    "test": "node test.js"
+    "test": "node ./test/test.js"
   },
   "dependencies": {}
 }

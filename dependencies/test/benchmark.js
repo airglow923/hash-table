@@ -1,4 +1,4 @@
-var HashTable = require('./index.js');
+var HashTable = require('../index.js');
 
 var Node = {
   crypto: require('crypto'),
