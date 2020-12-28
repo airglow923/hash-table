@@ -1,5 +1,8 @@
 'use strict';
 
+import * as crypto from 'crypto';
+import * as buffer from 'buffer';
+
 var Assert = {};
 
 Assert.GE = function(key, value, bound) {
@@ -71,7 +74,7 @@ var SLOT = (function() {
 var TABLE = (function() {
   var word = 4;
   var table = new Int32Array(64 * 256 * 2);
-  var buffer = require('crypto').randomBytes(table.length * word);
+  var buffer = crypto.randomBytes(table.length * word);
   for (var index = 0, length = table.length; index < length; index++) {
     table[index] = buffer.readInt32LE(index * word);
   }
@@ -81,7 +84,7 @@ var TABLE = (function() {
 // A fallback for when valueSize is 0 and the user does not pass a value buffer:
 var VALUE = Buffer.alloc(0);
 
-export function HashTable(keySize, valueSize, elementsMin=1024, elementsMax=0) {
+export default function HashTable(keySize, valueSize, elementsMin=1024, elementsMax=0) {
   Assert.GE('keySize', keySize, HashTable.KEY_MIN);
   Assert.LE('keySize', keySize, HashTable.KEY_MAX);
   // We optimize the hash function significantly given key is a multiple of 4:
@@ -223,7 +226,7 @@ HashTable.ELEMENTS_MIN = 0;
 HashTable.ELEMENTS_MAX = 4294967296;
 HashTable.BUCKETS_MIN = 2;
 HashTable.BUCKETS_MAX = 65536;
-HashTable.BUFFER_MAX = require('buffer').kMaxLength;
+HashTable.BUFFER_MAX = buffer.kMaxLength;
 Assert.GE('BUFFER_MAX', HashTable.BUFFER_MAX, 0);
 Assert.LE('BUFFER_MAX', HashTable.BUFFER_MAX, Math.pow(2, 32) - 1);
 Assert.LE(
@@ -921,7 +924,5 @@ Table.prototype.zero = function(offset, size) {
     this.buffer.fill(0, offset, offset + size);
   }
 };
-
-module.exports = HashTable;
 
 // S.D.G.

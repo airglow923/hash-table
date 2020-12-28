@@ -1,4 +1,3 @@
-// @ts-ignore
-import HashTable from './HashTableImpl.js';
+import HashTable from './HashTable.js';
 
-console.log(HashTable);
+export {HashTable};
