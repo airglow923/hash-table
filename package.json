@@ -4,9 +4,6 @@
   "description": "",
   "main": "./dist/src/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "/dist/src"
-  ],
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon dist/src/index.js",
