@@ -25,16 +25,13 @@
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "baseUrl": ".",
-    "allowJs": true
+    "baseUrl": "."
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
     "./src/**/*.tsx",
-    "./src/**/*.ts",
-    "./src/**/*.js"
+    "./src/**/*.ts"
   ]
 }
