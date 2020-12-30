@@ -122,8 +122,7 @@ export default class HashTable {
   public static BUFFER_MAX: number = buffer.kMaxLength;
 
   // Too many elements or buffer allocation limit reached, add more buffers:
-  public static ERROR_MAXIMUM_CAPACITY_EXCEEDED =
-    "maximum capacity exceeded";
+  public static ERROR_MAXIMUM_CAPACITY_EXCEEDED = "maximum capacity exceeded";
 
   // cache() and set() methods are mutually exclusive:
   // Once cache() is called, the table switches to non-resizing, caching mode.
@@ -132,12 +131,10 @@ export default class HashTable {
   // 1. cache() does not need to scan second position for an element.
   // 2. cache() can assume all elements are in first position when refiltering.
   // 3. cache() might otherwise evict an element that was inserted using set().
-  public static ERROR_MODE =
-    "cache() and set() methods are mutually exclusive";
+  public static ERROR_MODE = "cache() and set() methods are mutually exclusive";
 
   // This might indicate an adversarial attack, or weak tabulation hash entropy:
-  public static ERROR_SET =
-    "set() failed despite multiple resize attempts";
+  public static ERROR_SET = "set() failed despite multiple resize attempts";
 
   public keySize: number;
   public valueSize: number;
@@ -333,7 +330,10 @@ export default class HashTable {
     Assert.GE("elements", elements, HashTable.ELEMENTS_MIN);
     Assert.LE("elements", elements, HashTable.ELEMENTS_MAX);
 
-    const capacity = Math.min(Math.floor(elements * 1.3), HashTable.ELEMENTS_MAX);
+    const capacity = Math.min(
+      Math.floor(elements * 1.3),
+      HashTable.ELEMENTS_MAX
+    );
 
     Assert.GE("capacity", capacity, elements);
 
