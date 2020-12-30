@@ -14,7 +14,8 @@
     "start": "node dist/src/index.js",
     "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
     "fix": "npm run lint -- --fix",
-    "test": "node test/test.js"
+    "test": "node test/test.js",
+    "pretty": "npx prettier -w ."
   },
   "dependencies": {},
   "type": "module",
