@@ -1,50 +1,50 @@
 // @ts-ignore
-import * as crypto from 'crypto';
+import * as crypto from "crypto";
 // @ts-ignore
-import * as buffer from 'buffer';
+import * as buffer from "buffer";
 
 class Assert {
   public static GE(key: string, value: number, bound: number): void {
     if (!Number.isInteger(value)) {
-      throw new Error(key + ' must be an integer');
+      throw new Error(key + " must be an integer");
     }
 
     if (!Number.isInteger(bound)) {
-      throw new Error(key + ' bound not an integer');
+      throw new Error(key + " bound not an integer");
     }
 
     if (value < bound) {
-      throw new Error(key + ' must be at least ' + bound);
+      throw new Error(key + " must be at least " + bound);
     }
-  };
+  }
 
   public static LE(key: string, value: number, bound: number): void {
     if (!Number.isInteger(value)) {
-      throw new Error(key + ' must be an integer');
+      throw new Error(key + " must be an integer");
     }
 
     if (!Number.isInteger(bound)) {
-      throw new Error(key + ' bound not an integer');
+      throw new Error(key + " bound not an integer");
     }
 
     if (value > bound) {
-      throw new Error(key + ' must be at most ' + bound);
+      throw new Error(key + " must be at most " + bound);
     }
-  };
+  }
 
   public static P2(key: string, value: number): void {
     if (!Number.isInteger(value)) {
-      throw new Error(key + ' must be an integer');
+      throw new Error(key + " must be an integer");
     }
 
     if (value <= 0) {
-      throw new Error(key + ' must be greater than 0');
+      throw new Error(key + " must be greater than 0");
     }
 
     if (value & (value - 1)) {
-      throw new Error(key + ' must be a power of 2');
+      throw new Error(key + " must be a power of 2");
     }
-  };
+  }
 }
 
 // Hashes assigned by Hash() instead of using multiple return destructuring:
@@ -62,18 +62,16 @@ function Hash(key: Buffer, keyOffset: number, keySize: number): void {
     // Minimize cache misses by interleaving both tables into a single table:
     // Minimize letiable assignments by reusing k as an index into TABLE:
     // Unrolled to process 4 bytes at a time:
-    h1 ^= (
+    h1 ^=
       TABLE[(((i << 1) + 0) << 8) + key[keyOffset + i + 0]] ^
       TABLE[(((i << 1) + 1) << 8) + key[keyOffset + i + 1]] ^
       TABLE[(((i << 1) + 2) << 8) + key[keyOffset + i + 2]] ^
-      TABLE[(((i << 1) + 3) << 8) + key[keyOffset + i + 3]]
-    );
-    h2 ^= (
+      TABLE[(((i << 1) + 3) << 8) + key[keyOffset + i + 3]];
+    h2 ^=
       TABLE[(((i << 1) + 4) << 8) + key[keyOffset + i + 0]] ^
       TABLE[(((i << 1) + 5) << 8) + key[keyOffset + i + 1]] ^
       TABLE[(((i << 1) + 6) << 8) + key[keyOffset + i + 2]] ^
-      TABLE[(((i << 1) + 7) << 8) + key[keyOffset + i + 3]]
-    );
+      TABLE[(((i << 1) + 7) << 8) + key[keyOffset + i + 3]];
     i += 4;
   }
   H1 = h1;
@@ -82,9 +80,9 @@ function Hash(key: Buffer, keyOffset: number, keySize: number): void {
 
 // Slot lookup table, given 8-bits, return the index of an empty slot (if any):
 // We use this to find an empty slot in a single branch.
-let SLOT = ((): Uint8Array => {
-  let slots = 8;
-  let table = new Uint8Array(1 << slots);
+const SLOT = ((): Uint8Array => {
+  const slots = 8;
+  const table = new Uint8Array(1 << slots);
   for (let index = 0; index < table.length; index++) {
     let slot = 0;
     for (; slot < slots; slot++) {
@@ -96,10 +94,10 @@ let SLOT = ((): Uint8Array => {
 })();
 
 // Interleaved entropy table used by tabulation hash function:
-let TABLE = ((): Int32Array => {
-  let word = 4;
-  let table = new Int32Array(64 * 256 * 2);
-  let buffer = crypto.randomBytes(table.length * word);
+const TABLE = ((): Int32Array => {
+  const word = 4;
+  const table = new Int32Array(64 * 256 * 2);
+  const buffer = crypto.randomBytes(table.length * word);
   for (let index = 0, length = table.length; index < length; index++) {
     table[index] = buffer.readInt32LE(index * word);
   }
@@ -111,20 +109,21 @@ const VALUE: Buffer = Buffer.alloc(0);
 
 export default class HashTable {
   // Constants:
-  public static KEY_MIN: number = 4;
-  public static KEY_MAX: number = 64;
-  public static VALUE_MIN: number = 0;
-  public static VALUE_MAX: number = 1048576;
-  public static BUFFERS_MIN: number = 1;
-  public static BUFFERS_MAX: number = 8192;
-  public static ELEMENTS_MIN: number = 0;
-  public static ELEMENTS_MAX: number = 4294967296;
-  public static BUCKETS_MIN: number = 2;
-  public static BUCKETS_MAX: number = 65536;
+  public static KEY_MIN = 4;
+  public static KEY_MAX = 64;
+  public static VALUE_MIN = 0;
+  public static VALUE_MAX = 1048576;
+  public static BUFFERS_MIN = 1;
+  public static BUFFERS_MAX = 8192;
+  public static ELEMENTS_MIN = 0;
+  public static ELEMENTS_MAX = 4294967296;
+  public static BUCKETS_MIN = 2;
+  public static BUCKETS_MAX = 65536;
   public static BUFFER_MAX: number = buffer.kMaxLength;
 
   // Too many elements or buffer allocation limit reached, add more buffers:
-  public static ERROR_MAXIMUM_CAPACITY_EXCEEDED: string = 'maximum capacity exceeded';
+  public static ERROR_MAXIMUM_CAPACITY_EXCEEDED =
+    "maximum capacity exceeded";
 
   // cache() and set() methods are mutually exclusive:
   // Once cache() is called, the table switches to non-resizing, caching mode.
@@ -133,10 +132,12 @@ export default class HashTable {
   // 1. cache() does not need to scan second position for an element.
   // 2. cache() can assume all elements are in first position when refiltering.
   // 3. cache() might otherwise evict an element that was inserted using set().
-  public static ERROR_MODE: string = 'cache() and set() methods are mutually exclusive';
+  public static ERROR_MODE =
+    "cache() and set() methods are mutually exclusive";
 
   // This might indicate an adversarial attack, or weak tabulation hash entropy:
-  public static ERROR_SET: string = 'set() failed despite multiple resize attempts';
+  public static ERROR_SET =
+    "set() failed despite multiple resize attempts";
 
   public keySize: number;
   public valueSize: number;
@@ -150,38 +151,38 @@ export default class HashTable {
   constructor(
     keySize: number,
     valueSize: number,
-    elementsMin: number = 1024,
-    elementsMax: number = 0
+    elementsMin = 1024,
+    elementsMax = 0
   ) {
-    Assert.GE('keySize', keySize, HashTable.KEY_MIN);
-    Assert.LE('keySize', keySize, HashTable.KEY_MAX);
+    Assert.GE("keySize", keySize, HashTable.KEY_MIN);
+    Assert.LE("keySize", keySize, HashTable.KEY_MAX);
 
     // We optimize the hash function significantly given key is a multiple of 4:
     if (keySize % 4) {
-      throw new Error('keySize must be a multiple of 4');
+      throw new Error("keySize must be a multiple of 4");
     }
 
-    Assert.GE('valueSize', valueSize, HashTable.VALUE_MIN);
-    Assert.LE('valueSize', valueSize, HashTable.VALUE_MAX);
-    Assert.GE('elementsMin', elementsMin, HashTable.ELEMENTS_MIN);
-    Assert.LE('elementsMin', elementsMin, HashTable.ELEMENTS_MAX);
+    Assert.GE("valueSize", valueSize, HashTable.VALUE_MIN);
+    Assert.LE("valueSize", valueSize, HashTable.VALUE_MAX);
+    Assert.GE("elementsMin", elementsMin, HashTable.ELEMENTS_MIN);
+    Assert.LE("elementsMin", elementsMin, HashTable.ELEMENTS_MAX);
 
     if (elementsMax === 0) {
       elementsMax = Math.max(elementsMin + 4194304, elementsMin * 1024);
       elementsMax = Math.min(elementsMax, HashTable.ELEMENTS_MAX);
     }
 
-    Assert.GE('elementsMax', elementsMax, 1);
-    Assert.GE('elementsMax', elementsMax, elementsMin);
-    Assert.LE('elementsMax', elementsMax, HashTable.ELEMENTS_MAX);
+    Assert.GE("elementsMax", elementsMax, 1);
+    Assert.GE("elementsMax", elementsMax, elementsMin);
+    Assert.LE("elementsMax", elementsMax, HashTable.ELEMENTS_MAX);
 
-    let capacityMin = HashTable.capacity(elementsMin);
-    let capacityMax = HashTable.capacity(elementsMax);
-    let buffers = HashTable.buffers(keySize, valueSize, capacityMax);
+    const capacityMin = HashTable.capacity(elementsMin);
+    const capacityMax = HashTable.capacity(elementsMax);
+    const buffers = HashTable.buffers(keySize, valueSize, capacityMax);
 
-    Assert.GE('buffers', buffers, HashTable.BUFFERS_MIN);
-    Assert.LE('buffers', buffers, HashTable.BUFFERS_MAX);
-    Assert.P2('buffers', buffers);
+    Assert.GE("buffers", buffers, HashTable.BUFFERS_MIN);
+    Assert.LE("buffers", buffers, HashTable.BUFFERS_MAX);
+    Assert.P2("buffers", buffers);
 
     let buckets = HashTable.buckets(capacityMin, buffers);
 
@@ -189,9 +190,9 @@ export default class HashTable {
       buckets = HashTable.BUCKETS_MAX;
     }
 
-    Assert.GE('buckets', buckets, HashTable.BUCKETS_MIN);
-    Assert.LE('buckets', buckets, HashTable.BUCKETS_MAX);
-    Assert.P2('buckets', buckets);
+    Assert.GE("buckets", buckets, HashTable.BUCKETS_MIN);
+    Assert.LE("buckets", buckets, HashTable.BUCKETS_MAX);
+    Assert.P2("buckets", buckets);
 
     this.keySize = keySize;
     this.valueSize = valueSize;
@@ -217,34 +218,34 @@ export default class HashTable {
 
   // The size of a cache-aligned bucket, given keySize and valueSize:
   public static bucket(keySize: number, valueSize: number): number {
-    Assert.GE('keySize', keySize, HashTable.KEY_MIN);
-    Assert.LE('keySize', keySize, HashTable.KEY_MAX);
+    Assert.GE("keySize", keySize, HashTable.KEY_MIN);
+    Assert.LE("keySize", keySize, HashTable.KEY_MAX);
 
     if (keySize % 4) {
-      throw new Error('keySize must be a multiple of 4');
+      throw new Error("keySize must be a multiple of 4");
     }
 
-    Assert.GE('valueSize', valueSize, HashTable.VALUE_MIN);
-    Assert.LE('valueSize', valueSize, HashTable.VALUE_MAX);
+    Assert.GE("valueSize", valueSize, HashTable.VALUE_MIN);
+    Assert.LE("valueSize", valueSize, HashTable.VALUE_MAX);
 
     // Bucket includes padding for 64-byte cache line alignment:
-    let bucket = Math.ceil((20 + (keySize + valueSize) * 8) / 64) * 64;
-    Assert.GE('bucket', bucket, 0);
+    const bucket = Math.ceil((20 + (keySize + valueSize) * 8) / 64) * 64;
+    Assert.GE("bucket", bucket, 0);
     return bucket;
   }
 
   // The number of buckets required to support elements at 100% load factor:
   public static buckets(elements: number, buffers: number): number {
-    Assert.GE('elements', elements, HashTable.ELEMENTS_MIN);
-    Assert.LE('elements', elements, HashTable.ELEMENTS_MAX);  
-    Assert.GE('buffers', buffers, HashTable.BUFFERS_MIN);
-    Assert.LE('buffers', buffers, HashTable.BUFFERS_MAX);
-    Assert.P2('buffers', buffers);
-    let power = Math.ceil(Math.log2(Math.max(1, elements / 8 / buffers)));
-    let buckets = Math.max(HashTable.BUCKETS_MIN, Math.pow(2, power));
-    Assert.GE('buckets', buckets, HashTable.BUCKETS_MIN);
+    Assert.GE("elements", elements, HashTable.ELEMENTS_MIN);
+    Assert.LE("elements", elements, HashTable.ELEMENTS_MAX);
+    Assert.GE("buffers", buffers, HashTable.BUFFERS_MIN);
+    Assert.LE("buffers", buffers, HashTable.BUFFERS_MAX);
+    Assert.P2("buffers", buffers);
+    const power = Math.ceil(Math.log2(Math.max(1, elements / 8 / buffers)));
+    const buckets = Math.max(HashTable.BUCKETS_MIN, Math.pow(2, power));
+    Assert.GE("buckets", buckets, HashTable.BUCKETS_MIN);
     // Buckets may exceed BUCKETS_MAX here so that buffers() can call buckets().
-    Assert.P2('buckets', buckets);
+    Assert.P2("buckets", buckets);
     return buckets;
   }
 
@@ -258,7 +259,7 @@ export default class HashTable {
     //
     // 1. Maximize the number of buckets (>= 64) for maximum load factor.
     // 2. Minimize the number of buffers for less pointer overhead.
-    //  
+    //
     // The number of buckets places an upper bound on the maximum load factor:
     // If, at maximum capacity, the number of buckets is less than 64 then the
     // maximum load factor will be less than 100% (even when evicting).
@@ -281,39 +282,39 @@ export default class HashTable {
     // A value size of 1 MB guarantees 64 buckets.
     // A value size of 2 MB guarantees 32 buckets.
     // A value size of 4 MB guarantees 16 buckets.
-    // 
+    //
     // We therefore set VALUE_MAX to 1 MB to preclude the possibility of a cache
     // ever being artificially restricted to 75% occupancy (even when evicting).
     //
     // The above guarantees depend on KEY_MAX, VALUE_MAX and BUFFER_MAX:
 
-    Assert.LE('HashTable.KEY_MAX', HashTable.KEY_MAX, 64);
-    Assert.LE('HashTable.VALUE_MAX', HashTable.VALUE_MAX, 1048576);
-    Assert.GE('HashTable.BUFFER_MAX', HashTable.BUFFER_MAX, 1073741824 - 1);
-    Assert.GE('keySize', keySize, HashTable.KEY_MIN);
-    Assert.LE('keySize', keySize, HashTable.KEY_MAX);
+    Assert.LE("HashTable.KEY_MAX", HashTable.KEY_MAX, 64);
+    Assert.LE("HashTable.VALUE_MAX", HashTable.VALUE_MAX, 1048576);
+    Assert.GE("HashTable.BUFFER_MAX", HashTable.BUFFER_MAX, 1073741824 - 1);
+    Assert.GE("keySize", keySize, HashTable.KEY_MIN);
+    Assert.LE("keySize", keySize, HashTable.KEY_MAX);
 
     if (keySize % 4) {
-      throw new Error('keySize must be a multiple of 4');
+      throw new Error("keySize must be a multiple of 4");
     }
 
-    Assert.GE('valueSize', valueSize, HashTable.VALUE_MIN);
-    Assert.LE('valueSize', valueSize, HashTable.VALUE_MAX);
-    Assert.GE('elements', elements, HashTable.ELEMENTS_MIN);
-    Assert.LE('elements', elements, HashTable.ELEMENTS_MAX);
+    Assert.GE("valueSize", valueSize, HashTable.VALUE_MIN);
+    Assert.LE("valueSize", valueSize, HashTable.VALUE_MAX);
+    Assert.GE("elements", elements, HashTable.ELEMENTS_MIN);
+    Assert.LE("elements", elements, HashTable.ELEMENTS_MAX);
 
-    let bucket = HashTable.bucket(keySize, valueSize);
+    const bucket = HashTable.bucket(keySize, valueSize);
     let buffers = HashTable.BUFFERS_MIN;
 
-    Assert.GE('buffers', buffers, 1);
+    Assert.GE("buffers", buffers, 1);
 
     let limit = 10000;
 
     while (limit--) {
-      let buckets = HashTable.buckets(elements, buffers);
-      let buffer = buckets * bucket;
+      const buckets = HashTable.buckets(elements, buffers);
+      const buffer = buckets * bucket;
       if (
-        (buffers === HashTable.BUFFERS_MAX) ||
+        buffers === HashTable.BUFFERS_MAX ||
         (buckets <= HashTable.BUCKETS_MAX && buffer <= HashTable.BUFFER_MAX)
       ) {
         break;
@@ -321,20 +322,20 @@ export default class HashTable {
       buffers = buffers * 2;
     }
 
-    Assert.GE('buffers', buffers, HashTable.BUFFERS_MIN);
-    Assert.LE('buffers', buffers, HashTable.BUFFERS_MAX);
-    Assert.P2('buffers', buffers);
+    Assert.GE("buffers", buffers, HashTable.BUFFERS_MIN);
+    Assert.LE("buffers", buffers, HashTable.BUFFERS_MAX);
+    Assert.P2("buffers", buffers);
 
     return buffers;
   }
 
   public static capacity(elements: number): number {
-    Assert.GE('elements', elements, HashTable.ELEMENTS_MIN);
-    Assert.LE('elements', elements, HashTable.ELEMENTS_MAX);
+    Assert.GE("elements", elements, HashTable.ELEMENTS_MIN);
+    Assert.LE("elements", elements, HashTable.ELEMENTS_MAX);
 
-    let capacity = Math.min(Math.floor(elements * 1.3), HashTable.ELEMENTS_MAX);
+    const capacity = Math.min(Math.floor(elements * 1.3), HashTable.ELEMENTS_MAX);
 
-    Assert.GE('capacity', capacity, elements);
+    Assert.GE("capacity", capacity, elements);
 
     return capacity;
   }
@@ -358,8 +359,8 @@ export default class HashTable {
 
     Hash(key, keyOffset, this.keySize);
 
-    let table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
-    let result = table.cache(H1, H2, key, keyOffset, value, valueOffset);
+    const table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
+    const result = table.cache(H1, H2, key, keyOffset, value, valueOffset);
 
     if (result === 0) {
       this.length++;
@@ -370,7 +371,7 @@ export default class HashTable {
 
   public exist(key: Buffer, keyOffset: number): number {
     Hash(key, keyOffset, this.keySize);
-    let table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
+    const table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
     return table.exist(H1, H2, key, keyOffset);
   }
 
@@ -385,7 +386,7 @@ export default class HashTable {
       valueOffset = 0;
     }
     Hash(key, keyOffset, this.keySize);
-    let table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
+    const table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
     return table.get(H1, H2, key, keyOffset, value, valueOffset);
   }
 
@@ -402,21 +403,21 @@ export default class HashTable {
       valueOffset = 0;
     }
     Hash(key, keyOffset, this.keySize);
-    let h1 = H1;
-    let h2 = H2;
-    let table = this.tables[(((h1 >> 24) << 8) | (h2 >> 24)) & this.mask];
-    let result = table.set(h1, h2, key, keyOffset, value, valueOffset);
+    const h1 = H1;
+    const h2 = H2;
+    const table = this.tables[(((h1 >> 24) << 8) | (h2 >> 24)) & this.mask];
+    const result = table.set(h1, h2, key, keyOffset, value, valueOffset);
     if (result === 1) return 1;
     if (result === 0) {
       this.length++;
       return 0;
     }
     for (let resize = 1; resize <= 2; resize++) {
-      let buckets = table.buckets;
+      const buckets = table.buckets;
       if (table.resize(buckets << resize)) {
         this.capacity -= buckets * 8;
         this.capacity += table.buckets * 8;
-        let result = table.set(h1, h2, key, keyOffset, value, valueOffset);
+        const result = table.set(h1, h2, key, keyOffset, value, valueOffset);
         if (result === 1) return 1;
         if (result === 0) {
           this.length++;
@@ -429,8 +430,8 @@ export default class HashTable {
 
   public unset(key: Buffer, keyOffset: number): number {
     Hash(key, keyOffset, this.keySize);
-    let table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
-    let result = table.unset(H1, H2, key, keyOffset);
+    const table = this.tables[(((H1 >> 24) << 8) | (H2 >> 24)) & this.mask];
+    const result = table.unset(H1, H2, key, keyOffset);
 
     if (result === 1) {
       this.length--;
@@ -440,18 +441,18 @@ export default class HashTable {
   }
 }
 
-Object.defineProperty(HashTable.prototype, 'load', {
-  get: function() {
+Object.defineProperty(HashTable.prototype, "load", {
+  get: function () {
     return this.length / this.capacity;
-  }
+  },
 });
 
-Object.defineProperty(HashTable.prototype, 'size', {
-  get: function() {
-    let size = this.capacity / 8 * this.bucket;
-    Assert.GE('size', size, 0);
+Object.defineProperty(HashTable.prototype, "size", {
+  get: function () {
+    const size = (this.capacity / 8) * this.bucket;
+    Assert.GE("size", size, 0);
     return size;
-  }
+  },
 });
 
 type CopyKeyValueType = (s: Buffer, sO: number, t: Buffer, tO: number) => void;
@@ -496,7 +497,7 @@ class Table {
     value: Buffer,
     valueOffset: number
   ): void {
-    this.buffer[bucket + 9] |= (1 << slot); // Mark the slot as present.
+    this.buffer[bucket + 9] |= 1 << slot; // Mark the slot as present.
     this.buffer[bucket + 9 + 1 + slot] = tag; // Assign the element's tag.
     this.copyKey(key, keyOffset, this.buffer, this.keyOffset(bucket, slot));
     this.copyValue(
@@ -517,22 +518,27 @@ class Table {
     valueOffset: number
   ): number {
     // See comments in set():
-    let tag = (h1 >> 16) & 255;
-    let b1 = (h1 & this.mask) * this.bucket;
-    let f1 = (tag >> 4) & 7;
-    let f2 = 1 << (tag & 7);
+    const tag = (h1 >> 16) & 255;
+    const b1 = (h1 & this.mask) * this.bucket;
+    const f1 = (tag >> 4) & 7;
+    const f2 = 1 << (tag & 7);
     if (this.buffer[b1 + f1] & f2) {
-      let s1 = this.scan(b1, tag, key, keyOffset);
+      const s1 = this.scan(b1, tag, key, keyOffset);
       if (s1 < 8) {
         // Mark the element as recently used:
-        this.buffer[b1 + 18] |= (1 << s1);
-        this.copyValue(value, valueOffset, this.buffer, this.valueOffset(b1, s1));
+        this.buffer[b1 + 18] |= 1 << s1;
+        this.copyValue(
+          value,
+          valueOffset,
+          this.buffer,
+          this.valueOffset(b1, s1)
+        );
         return 1;
       }
     }
     // Evict the least recently used slot in first position:
-    let s3 = this.evict(b1);
-    let eviction = this.buffer[b1 + 9] & (1 << s3);
+    const s3 = this.evict(b1);
+    const eviction = this.buffer[b1 + 9] & (1 << s3);
     if (eviction) {
       // Mark the slot as empty so that the element is excluded from its filter:
       this.buffer[b1 + 9] &= ~(1 << s3);
@@ -544,22 +550,32 @@ class Table {
     // Add the new element to its filter (this can be a different filter):
     this.buffer[b1 + f1] |= f2;
     // Mark the element as recently used:
-    this.buffer[b1 + 18] |= (1 << s3);
+    this.buffer[b1 + 18] |= 1 << s3;
     return eviction ? 2 : 0;
   }
 
   public copy(size: number): CopyKeyValueType | undefined {
     switch (size) {
-    case   0: return this.copy00;
-    case   4: return this.copy04;
-    case   8: return this.copy08;
-    case  16: return this.copy16;
-    case  20: return this.copy20;
-    case  32: return this.copy32;
-    case  48: return this.copy48;
-    case  64: return this.copy64;
-    case 128: return this.copy128;
-    case 256: return this.copy256;
+      case 0:
+        return this.copy00;
+      case 4:
+        return this.copy04;
+      case 8:
+        return this.copy08;
+      case 16:
+        return this.copy16;
+      case 20:
+        return this.copy20;
+      case 32:
+        return this.copy32;
+      case 48:
+        return this.copy48;
+      case 64:
+        return this.copy64;
+      case 128:
+        return this.copy128;
+      case 256:
+        return this.copy256;
     }
     return undefined;
   }
@@ -606,34 +622,34 @@ class Table {
   public copy00(s: Buffer, sO: number, t: Buffer, tO: number): void {}
 
   public copy04(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    t[tO +  0] = s[sO +  0];
-    t[tO +  1] = s[sO +  1];
-    t[tO +  2] = s[sO +  2];
-    t[tO +  3] = s[sO +  3];
+    t[tO + 0] = s[sO + 0];
+    t[tO + 1] = s[sO + 1];
+    t[tO + 2] = s[sO + 2];
+    t[tO + 3] = s[sO + 3];
   }
 
   public copy08(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    t[tO +  0] = s[sO +  0];
-    t[tO +  1] = s[sO +  1];
-    t[tO +  2] = s[sO +  2];
-    t[tO +  3] = s[sO +  3];
-    t[tO +  4] = s[sO +  4];
-    t[tO +  5] = s[sO +  5];
-    t[tO +  6] = s[sO +  6];
-    t[tO +  7] = s[sO +  7];
+    t[tO + 0] = s[sO + 0];
+    t[tO + 1] = s[sO + 1];
+    t[tO + 2] = s[sO + 2];
+    t[tO + 3] = s[sO + 3];
+    t[tO + 4] = s[sO + 4];
+    t[tO + 5] = s[sO + 5];
+    t[tO + 6] = s[sO + 6];
+    t[tO + 7] = s[sO + 7];
   }
 
   public copy16(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    t[tO +  0] = s[sO +  0];
-    t[tO +  1] = s[sO +  1];
-    t[tO +  2] = s[sO +  2];
-    t[tO +  3] = s[sO +  3];
-    t[tO +  4] = s[sO +  4];
-    t[tO +  5] = s[sO +  5];
-    t[tO +  6] = s[sO +  6];
-    t[tO +  7] = s[sO +  7];
-    t[tO +  8] = s[sO +  8];
-    t[tO +  9] = s[sO +  9];
+    t[tO + 0] = s[sO + 0];
+    t[tO + 1] = s[sO + 1];
+    t[tO + 2] = s[sO + 2];
+    t[tO + 3] = s[sO + 3];
+    t[tO + 4] = s[sO + 4];
+    t[tO + 5] = s[sO + 5];
+    t[tO + 6] = s[sO + 6];
+    t[tO + 7] = s[sO + 7];
+    t[tO + 8] = s[sO + 8];
+    t[tO + 9] = s[sO + 9];
     t[tO + 10] = s[sO + 10];
     t[tO + 11] = s[sO + 11];
     t[tO + 12] = s[sO + 12];
@@ -642,17 +658,22 @@ class Table {
     t[tO + 15] = s[sO + 15];
   }
 
-  public copy20 = function(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    t[tO +  0] = s[sO +  0];
-    t[tO +  1] = s[sO +  1];
-    t[tO +  2] = s[sO +  2];
-    t[tO +  3] = s[sO +  3];
-    t[tO +  4] = s[sO +  4];
-    t[tO +  5] = s[sO +  5];
-    t[tO +  6] = s[sO +  6];
-    t[tO +  7] = s[sO +  7];
-    t[tO +  8] = s[sO +  8];
-    t[tO +  9] = s[sO +  9];
+  public copy20 = function (
+    s: Buffer,
+    sO: number,
+    t: Buffer,
+    tO: number
+  ): void {
+    t[tO + 0] = s[sO + 0];
+    t[tO + 1] = s[sO + 1];
+    t[tO + 2] = s[sO + 2];
+    t[tO + 3] = s[sO + 3];
+    t[tO + 4] = s[sO + 4];
+    t[tO + 5] = s[sO + 5];
+    t[tO + 6] = s[sO + 6];
+    t[tO + 7] = s[sO + 7];
+    t[tO + 8] = s[sO + 8];
+    t[tO + 9] = s[sO + 9];
     t[tO + 10] = s[sO + 10];
     t[tO + 11] = s[sO + 11];
     t[tO + 12] = s[sO + 12];
@@ -663,19 +684,19 @@ class Table {
     t[tO + 17] = s[sO + 17];
     t[tO + 18] = s[sO + 18];
     t[tO + 19] = s[sO + 19];
-  }
+  };
 
   public copy32(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    t[tO +  0] = s[sO +  0];
-    t[tO +  1] = s[sO +  1];
-    t[tO +  2] = s[sO +  2];
-    t[tO +  3] = s[sO +  3];
-    t[tO +  4] = s[sO +  4];
-    t[tO +  5] = s[sO +  5];
-    t[tO +  6] = s[sO +  6];
-    t[tO +  7] = s[sO +  7];
-    t[tO +  8] = s[sO +  8];
-    t[tO +  9] = s[sO +  9];
+    t[tO + 0] = s[sO + 0];
+    t[tO + 1] = s[sO + 1];
+    t[tO + 2] = s[sO + 2];
+    t[tO + 3] = s[sO + 3];
+    t[tO + 4] = s[sO + 4];
+    t[tO + 5] = s[sO + 5];
+    t[tO + 6] = s[sO + 6];
+    t[tO + 7] = s[sO + 7];
+    t[tO + 8] = s[sO + 8];
+    t[tO + 9] = s[sO + 9];
     t[tO + 10] = s[sO + 10];
     t[tO + 11] = s[sO + 11];
     t[tO + 12] = s[sO + 12];
@@ -701,27 +722,27 @@ class Table {
   }
 
   public copy48(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    this.copy32(s, sO +  0, t, tO +  0);
+    this.copy32(s, sO + 0, t, tO + 0);
     this.copy16(s, sO + 32, t, tO + 32);
   }
 
   public copy64(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    this.copy32(s, sO +  0, t, tO +  0);
+    this.copy32(s, sO + 0, t, tO + 0);
     this.copy32(s, sO + 32, t, tO + 32);
   }
 
   public copy128(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    this.copy32(s, sO +  0, t, tO +  0);
+    this.copy32(s, sO + 0, t, tO + 0);
     this.copy32(s, sO + 32, t, tO + 32);
     this.copy32(s, sO + 64, t, tO + 64);
     this.copy32(s, sO + 96, t, tO + 96);
   }
 
   public copy256(s: Buffer, sO: number, t: Buffer, tO: number): void {
-    this.copy32(s, sO +   0, t, tO +   0);
-    this.copy32(s, sO +  32, t, tO +  32);
-    this.copy32(s, sO +  64, t, tO +  64);
-    this.copy32(s, sO +  96, t, tO +  96);
+    this.copy32(s, sO + 0, t, tO + 0);
+    this.copy32(s, sO + 32, t, tO + 32);
+    this.copy32(s, sO + 64, t, tO + 64);
+    this.copy32(s, sO + 96, t, tO + 96);
     this.copy32(s, sO + 128, t, tO + 128);
     this.copy32(s, sO + 160, t, tO + 160);
     this.copy32(s, sO + 192, t, tO + 192);
@@ -749,7 +770,7 @@ class Table {
 
     while (tick--) {
       // Find the slot pointed to by CLOCK hand:
-       slot = this.buffer[bucket + 18 + 1];
+      slot = this.buffer[bucket + 18 + 1];
       // Increment CLOCK hand regardless of whether slot was recently used:
       this.buffer[bucket + 18 + 1] = (this.buffer[bucket + 18 + 1] + 1) & 7;
       // Evict slot if slot was not recently used:
@@ -762,15 +783,15 @@ class Table {
 
   public exist(h1: number, h2: number, key: Buffer, keyOffset: number): number {
     // See comments in set():
-    let tag = (h1 >> 16) & 255;
-    let b1 = (h1 & this.mask) * this.bucket;
-    let b2 = (h2 & this.mask) * this.bucket;
-    let f1 = (tag >> 4) & 7;
-    let f2 = 1 << (tag & 7);
+    const tag = (h1 >> 16) & 255;
+    const b1 = (h1 & this.mask) * this.bucket;
+    const b2 = (h2 & this.mask) * this.bucket;
+    const f1 = (tag >> 4) & 7;
+    const f2 = 1 << (tag & 7);
     if (this.buffer[b1 + f1] & f2) {
-      let s1 = this.scan(b1, tag, key, keyOffset);
+      const s1 = this.scan(b1, tag, key, keyOffset);
       if (s1 < 8) return 1;
-      let s2 = this.scan(b2, tag, key, keyOffset);
+      const s2 = this.scan(b2, tag, key, keyOffset);
       if (s2 < 8) return 1;
     }
     return 0;
@@ -778,7 +799,7 @@ class Table {
 
   // Decrement a filter's count of elements in second position:
   public filterDecrementSecondPosition(bucket: number): void {
-    if (this.buffer[bucket + 8] === 0) throw new Error('count should not be 0');
+    if (this.buffer[bucket + 8] === 0) throw new Error("count should not be 0");
     if (this.buffer[bucket + 8] < 255) {
       this.buffer[bucket + 8]--;
       if (this.buffer[bucket + 8] === 0) {
@@ -813,10 +834,10 @@ class Table {
         // Element must belong to the same filter (and be in first position):
         // We do not check whether element is actually in second position.
         // This would need special bookkeeping, is unlikely, and adds little.
-        let tag = this.buffer[bucket + 9 + 1 + slot];
-        let f1 = (tag >> 4) & 7;
+        const tag = this.buffer[bucket + 9 + 1 + slot];
+        const f1 = (tag >> 4) & 7;
         if (f1 === filter) {
-          let f2 = 1 << (tag & 7);
+          const f2 = 1 << (tag & 7);
           this.buffer[bucket + filter] |= f2;
         }
       }
@@ -832,23 +853,33 @@ class Table {
     valueOffset: number
   ): number {
     // See comments in set():
-    let tag = (h1 >> 16) & 255;
-    let b1 = (h1 & this.mask) * this.bucket;
-    let b2 = (h2 & this.mask) * this.bucket;
-    let f1 = (tag >> 4) & 7;
-    let f2 = 1 << (tag & 7);
+    const tag = (h1 >> 16) & 255;
+    const b1 = (h1 & this.mask) * this.bucket;
+    const b2 = (h2 & this.mask) * this.bucket;
+    const f1 = (tag >> 4) & 7;
+    const f2 = 1 << (tag & 7);
     if (this.buffer[b1 + f1] & f2) {
-      let s1 = this.scan(b1, tag, key, keyOffset);
+      const s1 = this.scan(b1, tag, key, keyOffset);
       if (s1 < 8) {
         // Mark element as recently used:
-        this.buffer[b1 + 18] |= (1 << s1);
-        this.copyValue(this.buffer, this.valueOffset(b1, s1), value, valueOffset);
+        this.buffer[b1 + 18] |= 1 << s1;
+        this.copyValue(
+          this.buffer,
+          this.valueOffset(b1, s1),
+          value,
+          valueOffset
+        );
         return 1;
       }
-      let s2 = this.scan(b2, tag, key, keyOffset);
+      const s2 = this.scan(b2, tag, key, keyOffset);
       if (s2 < 8) {
-        this.buffer[b2 + 18] |= (1 << s2);
-        this.copyValue(this.buffer, this.valueOffset(b2, s2), value, valueOffset);
+        this.buffer[b2 + 18] |= 1 << s2;
+        this.copyValue(
+          this.buffer,
+          this.valueOffset(b2, s2),
+          value,
+          valueOffset
+        );
         return 1;
       }
     }
@@ -863,26 +894,26 @@ class Table {
   }
 
   public resize(resizeBuckets: number): number {
-    Assert.GE('resizeBuckets', resizeBuckets, this.buckets * 2);
-    Assert.P2('resizeBuckets', resizeBuckets);
+    Assert.GE("resizeBuckets", resizeBuckets, this.buckets * 2);
+    Assert.P2("resizeBuckets", resizeBuckets);
     if (
       resizeBuckets > HashTable.BUCKETS_MAX ||
       this.bucket * resizeBuckets > HashTable.BUFFER_MAX
     ) {
       throw new Error(HashTable.ERROR_MAXIMUM_CAPACITY_EXCEEDED);
     }
-    let buckets = this.buckets;
-    let buffer = this.buffer;
+    const buckets = this.buckets;
+    const buffer = this.buffer;
     this.buckets = resizeBuckets;
     this.buffer = Buffer.alloc(this.bucket * resizeBuckets);
     this.mask = resizeBuckets - 1;
     for (let index = 0; index < buckets; index++) {
-      let bucket = index * this.bucket;
+      const bucket = index * this.bucket;
       for (let slot = 0; slot < 8; slot++) {
         if (buffer[bucket + 9] & (1 << slot)) {
           // We assume keyOffset, valueOffset depend only on bucket and slot:
-          let keyOffset = this.keyOffset(bucket, slot);
-          let valueOffset = this.valueOffset(bucket, slot);
+          const keyOffset = this.keyOffset(bucket, slot);
+          const valueOffset = this.valueOffset(bucket, slot);
           Hash(buffer, keyOffset, this.keySize);
           if (this.set(H1, H2, buffer, keyOffset, buffer, valueOffset) === -1) {
             // Fail this resize() attempt (and restore back to before resize):
@@ -909,8 +940,8 @@ class Table {
       if (
         // Check the tag before checking presence bits:
         // The tag is a better branch predictor with more entropy.
-        (this.buffer[bucket + 9 + 1 + slot] === tag) &&
-        (this.buffer[bucket + 9] & (1 << slot)) &&
+        this.buffer[bucket + 9 + 1 + slot] === tag &&
+        this.buffer[bucket + 9] & (1 << slot) &&
         this.equal(
           this.buffer,
           this.keyOffset(bucket, slot),
@@ -934,41 +965,51 @@ class Table {
     valueOffset: number
   ): number {
     // Use the 2nd most significant byte of H1 for 1-byte tag:
-    let tag = (h1 >> 16) & 255;
+    const tag = (h1 >> 16) & 255;
     // Use the 3rd and 4th most significant bytes of H1 and H2 for bucket offset:
-    let b1 = (h1 & this.mask) * this.bucket;
-    let b2 = (h2 & this.mask) * this.bucket;
+    const b1 = (h1 & this.mask) * this.bucket;
+    const b2 = (h2 & this.mask) * this.bucket;
     // Reuse tag entropy for filter entropy (instead of using 2nd MSB from H2):
     // This enables us to find the filter for any element without hashing its key.
     // This increases tag-scanning false positives, but optimizes filter resets.
     // This tradeoff is significant for cache(), where evictions reset filters.
     // At 100% occupancy, 1 element per filter, we expect 1 in 9 false positives.
     // See: https://hur.st/bloomfilter/?n=1&p=&m=8&k=1
-    let f1 = (tag >> 4) & 7; // Use tag's upper 4-bits to select a 1-byte filter.
-    let f2 = 1 << (tag & 7); // Use tag's lower 4-bits to select a bit.
+    const f1 = (tag >> 4) & 7; // Use tag's upper 4-bits to select a 1-byte filter.
+    const f2 = 1 << (tag & 7); // Use tag's lower 4-bits to select a bit.
     // Check the filter to see if the element might exist:
     if (this.buffer[b1 + f1] & f2) {
       // Search for the element and update the element's value if found:
-      let s1 = this.scan(b1, tag, key, keyOffset);
+      const s1 = this.scan(b1, tag, key, keyOffset);
       if (s1 < 8) {
-        this.copyValue(value, valueOffset, this.buffer, this.valueOffset(b1, s1));
+        this.copyValue(
+          value,
+          valueOffset,
+          this.buffer,
+          this.valueOffset(b1, s1)
+        );
         return 1;
       }
-      let s2 = this.scan(b2, tag, key, keyOffset);
+      const s2 = this.scan(b2, tag, key, keyOffset);
       if (s2 < 8) {
-        this.copyValue(value, valueOffset, this.buffer, this.valueOffset(b2, s2));
+        this.copyValue(
+          value,
+          valueOffset,
+          this.buffer,
+          this.valueOffset(b2, s2)
+        );
         return 1;
       }
     }
     // Find an empty slot in first position:
-    let s3 = this.SLOT[this.buffer[b1 + 9]];
+    const s3 = this.SLOT[this.buffer[b1 + 9]];
     if (s3 < 8) {
       this.assign(b1, tag, s3, key, keyOffset, value, valueOffset);
       this.buffer[b1 + f1] |= f2;
       return 0;
     }
     // Find an empty slot in second position:
-    let s4 = this.SLOT[this.buffer[b2 + 9]];
+    const s4 = this.SLOT[this.buffer[b2 + 9]];
     if (s4 < 8) {
       this.assign(b2, tag, s4, key, keyOffset, value, valueOffset);
       this.buffer[b1 + f1] |= f2;
@@ -976,14 +1017,14 @@ class Table {
       return 0;
     }
     // Vacate a slot in first position:
-    let s5 = this.vacate(b1);
+    const s5 = this.vacate(b1);
     if (s5 < 8) {
       this.assign(b1, tag, s5, key, keyOffset, value, valueOffset);
       this.buffer[b1 + f1] |= f2;
       return 0;
     }
     // Vacate a slot in second position:
-    let s6 = this.vacate(b2);
+    const s6 = this.vacate(b2);
     if (s6 < 8) {
       this.assign(b2, tag, s6, key, keyOffset, value, valueOffset);
       this.buffer[b1 + f1] |= f2;
@@ -995,13 +1036,13 @@ class Table {
 
   public unset(h1: number, h2: number, key: Buffer, keyOffset: number): number {
     // See comments in set():
-    let tag = (h1 >> 16) & 255;
-    let b1 = (h1 & this.mask) * this.bucket;
-    let b2 = (h2 & this.mask) * this.bucket;
-    let f1 = (tag >> 4) & 7;
-    let f2 = 1 << (tag & 7);
+    const tag = (h1 >> 16) & 255;
+    const b1 = (h1 & this.mask) * this.bucket;
+    const b2 = (h2 & this.mask) * this.bucket;
+    const f1 = (tag >> 4) & 7;
+    const f2 = 1 << (tag & 7);
     if (this.buffer[b1 + f1] & f2) {
-      let s1 = this.scan(b1, tag, key, keyOffset);
+      const s1 = this.scan(b1, tag, key, keyOffset);
       if (s1 < 8) {
         this.buffer[b1 + 9] &= ~(1 << s1);
         this.buffer[b1 + 9 + 1 + s1] = 0;
@@ -1010,7 +1051,7 @@ class Table {
         this.filterReset(b1, f1);
         return 1;
       }
-      let s2 = this.scan(b2, tag, key, keyOffset);
+      const s2 = this.scan(b2, tag, key, keyOffset);
       if (s2 < 8) {
         this.buffer[b2 + 9] &= ~(1 << s2);
         this.buffer[b2 + 9 + 1 + s2] = 0;
@@ -1026,18 +1067,24 @@ class Table {
   public vacate(bucket: number): number {
     let slot = 0;
     for (; slot < 8; slot++) {
-      let keyOffset = this.keyOffset(bucket, slot);
-      let valueOffset = this.valueOffset(bucket, slot);
+      const keyOffset = this.keyOffset(bucket, slot);
+      const valueOffset = this.valueOffset(bucket, slot);
       Hash(this.buffer, keyOffset, this.keySize);
-      let tag = (H1 >> 16) & 255;
-      let b1 = (H1 & this.mask) * this.bucket;
-      let b2 = (H2 & this.mask) * this.bucket;
+      const tag = (H1 >> 16) & 255;
+      const b1 = (H1 & this.mask) * this.bucket;
+      const b2 = (H2 & this.mask) * this.bucket;
       if (bucket === b1) {
         // Move existing element to second position if there is an empty slot:
-        let s2 = this.SLOT[this.buffer[b2 + 9]];
+        const s2 = this.SLOT[this.buffer[b2 + 9]];
         if (s2 < 8) {
           this.assign(
-            b2, tag, s2, this.buffer, keyOffset, this.buffer, valueOffset
+            b2,
+            tag,
+            s2,
+            this.buffer,
+            keyOffset,
+            this.buffer,
+            valueOffset
           );
           this.filterIncrementSecondPosition(b1);
           break;
@@ -1045,16 +1092,22 @@ class Table {
         // First and second positions are the same, or second position is full.
       } else if (bucket === b2) {
         // Move existing element back to first position if there is an empty slot:
-        let s1 = this.SLOT[this.buffer[b1 + 9]];
+        const s1 = this.SLOT[this.buffer[b1 + 9]];
         if (s1 < 8) {
           this.assign(
-            b1, tag, s1, this.buffer, keyOffset, this.buffer, valueOffset
+            b1,
+            tag,
+            s1,
+            this.buffer,
+            keyOffset,
+            this.buffer,
+            valueOffset
           );
           this.filterDecrementSecondPosition(b1);
           break;
         }
       } else {
-        throw new Error('bucket !== b1 && bucket !== b2');
+        throw new Error("bucket !== b1 && bucket !== b2");
       }
     }
     return slot;
