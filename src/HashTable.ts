@@ -145,7 +145,7 @@ export default class HashTable {
   public length: number;
   public mask: number;
   public mode: number;
-  public tables: Array<any>;
+  public tables: Array<Table>;
 
   constructor(
     keySize: number,
@@ -208,7 +208,7 @@ export default class HashTable {
       throw new Error(HashTable.ERROR_MAXIMUM_CAPACITY_EXCEEDED);
     }
 
-    this.tables = new Array<any>(buffers);
+    this.tables = new Array<Table>(buffers);
 
     for (let offset = 0; offset < buffers; offset++) {
       this.tables[offset] = new Table(keySize, valueSize, this.bucket, buckets);
@@ -249,7 +249,11 @@ export default class HashTable {
   }
 
   // The number of buffers required to support elements at 100% load factor:
-  public static buffers(keySize: number, valueSize: number, elements: number) {
+  public static buffers(
+    keySize: number,
+    valueSize: number,
+    elements: number
+  ): number {
     // Objectives:
     //
     // 1. Maximize the number of buckets (>= 64) for maximum load factor.
@@ -324,7 +328,7 @@ export default class HashTable {
     return buffers;
   }
 
-  public static capacity(elements: number) {
+  public static capacity(elements: number): number {
     Assert.GE('elements', elements, HashTable.ELEMENTS_MIN);
     Assert.LE('elements', elements, HashTable.ELEMENTS_MAX);
 
@@ -375,7 +379,7 @@ export default class HashTable {
     keyOffset: number,
     value: Buffer,
     valueOffset: number
-  ) {
+  ): number {
     if (this.valueSize === 0) {
       value = VALUE;
       valueOffset = 0;
