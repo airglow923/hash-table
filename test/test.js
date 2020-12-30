@@ -1,6 +1,6 @@
 'use strict';
 
-import {HashTable} from '../dist/src/index.js';
+import HashTable from '../dist/src/index.js';
 // var Node = { crypto: require('crypto') };
 import * as crypto from 'crypto';
 
