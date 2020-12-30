@@ -136,14 +136,14 @@ export default class HashTable {
   // This might indicate an adversarial attack, or weak tabulation hash entropy:
   public static ERROR_SET = "set() failed despite multiple resize attempts";
 
-  public keySize: number;
-  public valueSize: number;
-  public bucket: number;
+  private keySize: number;
+  private valueSize: number;
+  private bucket: number;
   public capacity: number;
   public length: number;
-  public mask: number;
-  public mode: number;
-  public tables: Array<Table>;
+  private mask: number;
+  private mode: number;
+  private tables: Array<Table>;
 
   constructor(
     keySize: number,
@@ -214,7 +214,7 @@ export default class HashTable {
   }
 
   // The size of a cache-aligned bucket, given keySize and valueSize:
-  public static bucket(keySize: number, valueSize: number): number {
+  private static bucket(keySize: number, valueSize: number): number {
     Assert.GE("keySize", keySize, HashTable.KEY_MIN);
     Assert.LE("keySize", keySize, HashTable.KEY_MAX);
 
@@ -232,7 +232,7 @@ export default class HashTable {
   }
 
   // The number of buckets required to support elements at 100% load factor:
-  public static buckets(elements: number, buffers: number): number {
+  private static buckets(elements: number, buffers: number): number {
     Assert.GE("elements", elements, HashTable.ELEMENTS_MIN);
     Assert.LE("elements", elements, HashTable.ELEMENTS_MAX);
     Assert.GE("buffers", buffers, HashTable.BUFFERS_MIN);
@@ -247,7 +247,7 @@ export default class HashTable {
   }
 
   // The number of buffers required to support elements at 100% load factor:
-  public static buffers(
+  private static buffers(
     keySize: number,
     valueSize: number,
     elements: number
@@ -326,7 +326,7 @@ export default class HashTable {
     return buffers;
   }
 
-  public static capacity(elements: number): number {
+  private static capacity(elements: number): number {
     Assert.GE("elements", elements, HashTable.ELEMENTS_MIN);
     Assert.LE("elements", elements, HashTable.ELEMENTS_MAX);
 
