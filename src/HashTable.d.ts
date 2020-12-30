@@ -6,17 +6,33 @@
 export = ronomon__hash_table;
 
 declare class ronomon__hash_table {
-    constructor(keySize: any, valueSize: any, elementsMin: any, elementsMax: any);
+    constructor(
+      keySize: number,
+      valueSize: number,
+      elementsMin: number,
+      elementsMax: number);
 
-    cache(key: any, keyOffset: any, value: any, valueOffset: any): any;
+    cache(
+      key: Buffer,
+      keyOffset: number,
+      value: Buffer,
+      valueOffset: number): number;
 
-    exist(key: any, keyOffset: any): any;
+    exist(key: Buffer, keyOffset: number): number;
 
-    get(key: any, keyOffset: any, value: any, valueOffset: any): any;
+    get(
+      key: Buffer,
+      keyOffset: number,
+      value: Buffer,
+      valueOffset: number): number;
 
-    set(key: any, keyOffset: any, value: any, valueOffset: any): any;
+    set(
+      key: Buffer,
+      keyOffset: number,
+      value: Buffer,
+      valueOffset: number): number;
 
-    unset(key: any, keyOffset: any): any;
+    unset(key: Buffer, keyOffset: number): number;
 
     static BUCKETS_MAX: number;
 
@@ -46,13 +62,16 @@ declare class ronomon__hash_table {
 
     static VALUE_MIN: number;
 
-    static bucket(keySize: any, valueSize: any): any;
+    static bucket(keySize: number, valueSize: number): number;
 
-    static buckets(elements: any, buffers: any): any;
+    static buckets(elements: number, buffers: number): number;
 
-    static buffers(keySize: any, valueSize: any, elements: any): any;
+    static buffers(
+      keySize: number,
+      valueSize: number,
+      elements: number): number;
 
-    static capacity(elements: any): any;
+    static capacity(elements: number): number;
 
 }
 
